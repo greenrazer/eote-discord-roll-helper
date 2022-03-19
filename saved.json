@@ -1,0 +1,55 @@
+{
+	"base": {
+		"last_xp":"2012-04-23T18:25:43.511Z",
+		"total_xp":0, 
+	
+		"brawn": 0,
+		"agility": 0,
+		"intellect": 0,
+		"cunning": 0,
+		"willpower": 0,
+		"presence": 0
+	},
+	"skills": {
+		"athletics": {"career": false, "rank":0},
+		"resilience": {"career": false, "rank":0},
+		"brawl": {"career": false, "rank":0},
+		"lightsaber": {"career": false, "rank":0},
+		"melee": {"career": false, "rank":0},
+		
+		"coordination": {"career": false, "rank":0},
+		"piloting_planetary": {"career": false, "rank":0},
+		"piloting_space": {"career": false, "rank":0},
+		"stealth": {"career": false, "rank":0},
+		"gunnery": {"career": false, "rank":0},
+		"ranged_light": {"career": false, "rank":0},
+		"ranged_heavy": {"career": false, "rank":0},
+		
+		"astrogation": {"career": false, "rank":0},
+		"computers": {"career": false, "rank":0},
+		"mechanics": {"career": false, "rank":0},
+		"medicine": {"career": false, "rank":0},
+		"core_worlds": {"career": false, "rank":0},
+		"education": {"career": false, "rank":0},
+		"lore": {"career": false, "rank":0},
+		"outer_rim": {"career": false, "rank":0},
+		"underworld": {"career": false, "rank":0},
+		"warfare": {"career": false, "rank":0},
+		"xenology": {"career": false, "rank":0},
+		
+		"deception": {"career": false, "rank":0},
+		"perception": {"career": false, "rank":0},
+		"skulduggery": {"career": false, "rank":0},
+		"streetwise": {"career": false, "rank":0},
+		"survival": {"career": false, "rank":0},
+		
+		"coercion": {"career": false, "rank":0},
+		"discipline": {"career": false, "rank":0},
+		"vigilance": {"career": false, "rank":0},
+		
+		"charm": {"career": false, "rank":0},
+		"cool": {"career": false, "rank":0},
+		"leadership": {"career": false, "rank":0},
+		"negotiation": {"career": false, "rank":0}
+	}
+}

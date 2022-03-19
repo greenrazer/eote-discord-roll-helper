@@ -1,0 +1,34 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Edging Of The Empiring</title>
+		<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.2/css/all.min.css"
+			integrity="sha512-HK5fgLBL+xu6dm/Ii3z4xhlSUyZgTT9tuc/hSrtw6uzJOvgRr2a9jyxxT1ely+B+xFAmJKVSTbpM/CuL7qxO8w=="
+			crossorigin="anonymous" />
+		<style>
+			{%style_info%}
+		</style>
+  </head>
+  <body>
+		<button onclick="shutdownServer()">
+			<span>shutdown</span>
+		</button>
+		<script>
+			var postSeperator = "{%post_seperator%}"
+			var playerData = {%player_data%}
+
+			document.addEventListener('DOMContentLoaded', preparePage)
+
+			function preparePage() {
+
+			}
+
+			function shutdownServer() {
+				var xhr = new XMLHttpRequest();
+				xhr.open("POST", window.location.href, true);
+				xhr.setRequestHeader('Content-Type', 'application/text');
+				xhr.send("shutdown");	
+			}
+		</script>
+	</body>
+</html>
