@@ -11,6 +11,21 @@
   </head>
   <body>
 		<table>
+			<tr>
+				<th>Total XP</th>
+				<th>Used XP</th>
+				<th>Unused XP</th>
+			</tr>
+			<tr>
+				<td>
+					<label for="total-xp">Total XP:</label>
+					<input type="number" id="total-xp" name="total-xp" min="0">
+				</td>
+				<td id="used-xp"></td>
+				<td id="unused-xp"></td>
+			</tr>
+		</table>
+		<table>
 			<tr id="characteristics-header">
 			</tr>
 			<tr id="characteristics-values">
@@ -55,6 +70,7 @@
 				fillCharacteristics()
 				fillDifficultyPopup()
 				fillSkills()
+				fillXP()
 			}
 
 			function fillCharacteristics() {
@@ -78,7 +94,7 @@
 
 					const input_elem = document.createElement('input')
 					input_elem.type = 'number'
-					input_elem.name = `${characteristic}`
+					input_elem.name = characteristic
 					input_elem.min = 0
 					input_elem.setAttribute('value', info["rank"])
 					input_elem.addEventListener("change", (event) => {
@@ -192,6 +208,7 @@
 					let rank_elem = document.createElement('td')
 					let lvl_selector = makeLevelSelector(skill, (name, rank) => {
 						playerData["skills"][name]["rank"] = rank
+						calculateXP()
 					})
 					setLevel(playerData["skills"][skill]["rank"], lvl_selector)
 					rank_elem.appendChild(lvl_selector)
@@ -214,6 +231,45 @@
 
 					skill_table.appendChild(skill_row_elem)
 				}
+			}
+
+			function fillXP() {
+				let totalXPHolder = document.getElementById("total-xp")
+				calculateXP()
+				totalXPHolder.addEventListener("change", (event) => {
+					playerData["base"]["totalXP"] = parseInt(event.target.value)
+					calculateXP()
+				})
+			}
+
+			function calculateXP() {
+				let xp = playerData["base"]["totalXP"]
+
+				let xpUsed = 0
+
+				for (const [skill, info] of Object.entries(playerData["skills"])) {
+					if (info["rank"] > 0) {
+						const initialValue = info["career"] ? 0 : 5*info["rank"]
+						xpUsed += range(info["rank"], 1).reduce((partialSum, a) => {
+							return partialSum + a*5
+						}, initialValue);
+					}
+				}
+
+				let xpLeft = xp - xpUsed
+
+				let totalXPHolder = document.getElementById("total-xp")
+				totalXPHolder.setAttribute("value", xp)
+
+				let usedXPHolder = document.getElementById("used-xp")
+				usedXPHolder.innerHTML = xpUsed
+
+				let unusedXPHolder = document.getElementById("unused-xp")
+				unusedXPHolder.innerHTML = xpLeft
+			}
+
+			function range(size, startAt = 0) {
+					return [...Array(size).keys()].map(i => i + startAt);
 			}
 
 			function removeAllChildNodes(parent) {
