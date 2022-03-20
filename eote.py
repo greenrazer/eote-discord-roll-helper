@@ -25,8 +25,11 @@ TEMP_VARIABLE_R_PAREN = ">>>>>5adc29d9c262b3b393f1effce07f15d5"
 
 POST_SEPERATOR = "<<|>>"
 
-def quit(message):
-  sys.exit(message)
+def quit(message=None):
+	if message is None:
+		sys.exit()
+	else:
+  	sys.exit(message)
 
 def fill_template(templ_string, fill_dict):
 	temp_main_template = templ_string.replace("{%", TEMP_VARIABLE_L_SP_PAREN)
