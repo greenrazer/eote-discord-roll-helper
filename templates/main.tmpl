@@ -15,7 +15,7 @@
 				<span>Create New Character</span>
 			</button>
 			<div id="character-selector">
-				<label for="character">Choose a character:</label>
+				<label for="character">Choose A Character:</label>
 				<select name="character" id="character"></select>
 			</div>
 		</div>
@@ -33,7 +33,6 @@
 				</tr>
 				<tr>
 					<td>
-						<label for="total-xp">Total XP:</label>
 						<input type="number" id="total-xp" name="total-xp" min="0">
 					</td>
 					<td id="used-xp"></td>
@@ -51,6 +50,9 @@
 			<table id="skills">
 			</table>
 			<div id="difficulty-popup" style="display:none;background-color:gray;">
+			</div>
+
+			<div id="status-popup" style="display:none;background-color:gray;">
 			</div>
 
 			<button onclick="sendSave()">
@@ -167,10 +169,6 @@
 					const td_elem = document.createElement('td')
 					td_elem.setAttribute("id", characteristic)
 
-					const label_elem = document.createElement('label')
-					label_elem.setAttribute('for', characteristic)
-					label_elem.innerHTML = `${characteristic.capitalize()} Level:`
-
 					const input_elem = document.createElement('input')
 					input_elem.type = 'number'
 					input_elem.name = characteristic
@@ -181,7 +179,6 @@
 						calculateXP()
 					})
 
-					td_elem.appendChild(label_elem)
 					td_elem.appendChild(input_elem)
 
 					char_values.appendChild(td_elem)
@@ -489,9 +486,13 @@
 
 			function sendSave() {
 				const saveJsonString = JSON.stringify(playerData[currentCharacter]);
-				console.log("Saving...")
+				let statpop = document.getElementById("status-popup")
+				statpop.innerHTML = "Saving..."
+				statpop.style.display = "block"
 				sendRequest("save" + postSeperator + saveJsonString, () => {
-					console.log("Saved.")
+					setTimeout(function () {
+						statpop.style.display = "None"
+					}, 1000)
 				});	
 			}
 

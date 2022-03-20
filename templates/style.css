@@ -12,6 +12,13 @@
 	margin-top: -300px;
 }
 
+#status-popup {
+	position: absolute;
+	left: 50%;
+	top: 50%; 
+	font-size: xx-large;
+}
+
 .wid100 {
 	width: 100%;
 }
