@@ -12,6 +12,7 @@ import sys
 
 import discord
 
+current_dir = os.path.dirname(__file__)
 
 DISCORD_CLIENT_TOKEN_KEY = "discordClientToken"
 DISCORD_CHANNEL_ID_KEY = "discordChannelId"
@@ -54,20 +55,20 @@ def filenames_in_directory(direc):
 
 def build_player_data_json():
 	out_arr = []
-	for file in filenames_in_directory("saved"):
+	for file in filenames_in_directory(os.path.join(current_dir, "saved")):
 		if (file != '.gitignore'):
-			with open(f"saved/{file}", "r") as f:
+			with open(os.path.join(current_dir, f"saved/{file}"), "r") as f:
 				out_arr.append(json.load(f))
 	return json.dumps(out_arr)
 
 def get_html():
-	with open("templates/main.tmpl", "r") as f:
+	with open(os.path.join(current_dir, "templates/main.tmpl"), "r") as f:
 		main_template = f.read()
 
-	with open("templates/style.css", "r") as f:
+	with open(os.path.join(current_dir, "templates/style.css"), "r") as f:
 		style = f.read()
 
-	with open("default.json", "r") as f:
+	with open(os.path.join(current_dir, "default.json"), "r") as f:
 		default_info = json.load(f)
 
 	player_data = build_player_data_json()
@@ -108,7 +109,7 @@ def create_roll_command(data):
 		return None
 
 def save_json_to_file(data):
-	with open(f"saved/{data['base']['name']}.json", "w") as f:
+	with open(os.path.join(current_dir, f"saved/{data['base']['name']}.json"), "w") as f:
 		json.dump(data, f)
 
 def delete_json_file(data):
@@ -179,7 +180,7 @@ class DiscordClient(discord.Client):
 
 def main():
 	try:
-		with open("config.json", "r") as f:
+		with open(os.path.join(current_dir, "config.json"), "r") as f:
 			config = json.load(f)
 	except json.decoder.JSONDecodeError:
 		quit("'config.json' could not be read, or is not filled in correctly.")
