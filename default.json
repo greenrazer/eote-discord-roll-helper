@@ -6,202 +6,243 @@
 	},
 	"characteristics": {
 		"brawn": {
+			"name": "Brawn",
 			"nickname": "Br",
 			"rank": 0
 		},
 		"agility": {
+			"name":"Agility",
 			"nickname": "Ag",
 			"rank": 0
 		},
 		"intellect": {
+			"name":"Intellect",
 			"nickname": "Int",
 			"rank": 0
 		},
 		"cunning": {
+			"name":"Cunning",
 			"nickname": "Cun",
 			"rank": 0
 		},
 		"willpower": {
+			"name":"Willpower",
 			"nickname": "Will",
 			"rank": 0
 		},
 		"presence": {
+			"name":"presence",
 			"nickname": "Pr",
 			"rank": 0
 		}
 	},
 	"skills": {
 		"astrogation": {
+			"name": "Astrogation",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"athletics": {
+			"name": "Athletics",
 			"career": false,
 			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"charm": {
+			"name": "Charm",
 			"career": false,
 			"rank": 0,
 			"characteristic": "presence"
 		},
 		"coercion": {
+			"name": "Coercion",
 			"career": false,
 			"rank": 0,
 			"characteristic": "willpower"
 		},
 		"computers": {
+			"name": "Computers",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"cool": {
+			"name": "Cool",
 			"career": false,
 			"rank": 0,
 			"characteristic": "presence"
 		},
 		"coordination": {
+			"name": "Coordination",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"deception": {
+			"name": "Deception",
 			"career": false,
 			"rank": 0,
 			"characteristic": "cunning"
 		},
 		"discipline": {
+			"name": "Discipline",
 			"career": false,
 			"rank": 0,
 			"characteristic": "willpower"
 		},
 		"leadership": {
+			"name": "Leadership",
 			"career": false,
 			"rank": 0,
 			"characteristic": "presence"
 		},
 		"mechanics": {
+			"name": "Mechanics",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"medicine": {
+			"name": "Medicine",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"negotiation": {
+			"name": "Negotiation",
 			"career": false,
 			"rank": 0,
 			"characteristic": "presence"
 		},
 		"perception": {
+			"name": "Perception",
 			"career": false,
 			"rank": 0,
 			"characteristic": "cunning"
 		},
 		"piloting_planetary": {
+			"name": "Piloting Planetary",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"piloting_space": {
+			"name": "Piloting Space",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"resilience": {
+			"name": "Resilience",
 			"career": false,
 			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"skulduggery": {
+			"name": "Skulduggery",
 			"career": false,
 			"rank": 0,
 			"characteristic": "cunning"
 		},
 		"stealth": {
+			"name": "Stealth",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"streetwise": {
+			"name": "Streetwise",
 			"career": false,
 			"rank": 0,
 			"characteristic": "cunning"
 		},
 		"survival": {
+			"name": "Survival",
 			"career": false,
 			"rank": 0,
 			"characteristic": "cunning"
 		},
 		"vigilance": {
+			"name": "Vigilance",
 			"career": false,
 			"rank": 0,
 			"characteristic": "willpower"
 		},
 		"brawl": {
+			"name": "Brawl",
 			"career": false,
 			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"lightsaber": {
+			"name": "Lightsaber",
 			"career": false,
 			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"melee": {
+			"name": "Melee",
 			"career": false,
 			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"gunnery": {
+			"name": "Gunnery",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"ranged_light": {
+			"name": "Ranged Light",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"ranged_heavy": {
+			"name": "Ranged Heavy",
 			"career": false,
 			"rank": 0,
 			"characteristic": "agility"
 		},
 		"core_worlds": {
+			"name": "Core Worlds",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"education": {
+			"name": "Education",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"lore": {
+			"name": "Lore",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"outer_rim": {
+			"name": "Outer Rim",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"underworld": {
+			"name": "Underworld",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"warfare": {
+			"name": "Warfare",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"xenology": {
+			"name": "Xenology",
 			"career": false,
 			"rank": 0,
 			"characteristic": "intellect"
