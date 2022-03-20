@@ -179,12 +179,22 @@
 					characteristic_nickname_elem.innerHTML = characteristic_nickname
 
 					let career_elem = document.createElement('td')
-					career_elem.innerHTML = info["career"]
+					let career_check = document.createElement('input')
+					career_check.type = 'checkbox'
+					career_check.name = `${skill}-career`
+					career_check.checked = info["career"]
+					career_check.addEventListener("change", (event) => {
+						playerData["skills"][skill]["career"] = event.target.checked
+						calculateXP()
+					})
+					career_elem.appendChild(career_check)
 
 					let rank_elem = document.createElement('td')
-					rank_elem.appendChild(makeLevelSelector(skill, (name, rank) => {
+					let lvl_selector = makeLevelSelector(skill, (name, rank) => {
 						playerData["skills"][name]["rank"] = rank
-					}))
+					})
+					setLevel(playerData["skills"][skill]["rank"], lvl_selector)
+					rank_elem.appendChild(lvl_selector)
 
 					let button_elem = document.createElement('td')
 					const button = document.createElement('button')
