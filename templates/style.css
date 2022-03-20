@@ -1,0 +1,17 @@
+*{
+	margin: 0;
+	padding: 0;
+}
+#difficulty-popup {
+	width: 600px;
+	height: 600px;
+	position: absolute;
+	left: 50%;
+	top: 50%; 
+	margin-left: -300px;
+	margin-top: -300px;
+}
+
+.wid100 {
+	width: 100%;
+}

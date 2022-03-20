@@ -10,24 +10,350 @@
 		</style>
   </head>
   <body>
-		<button onclick="shutdownServer()">
-			<span>shutdown</span>
+		<table>
+			<tr id="characteristics-header">
+			</tr>
+			<tr id="characteristics-values">
+			</tr>
+			<tr id="characteristics-rolls">
+			</tr>
+		</table>
+		<table id="skills">
+		</table>
+		<div id="difficulty-popup" style="display:none;background-color:gray;">
+		</div>
+
+		<button onclick="sendShutdownServer()">
+			<span>Shutdown</span>
 		</button>
+
+		<button onclick="sendSave()">
+			<span>Save</span>
+		</button>
+
+		<button onclick="sendDestiny()">
+			<span>Destiny</span>
+		</button>
+
 		<script>
 			var postSeperator = "{%post_seperator%}"
 			var playerData = {%player_data%}
 
-			document.addEventListener('DOMContentLoaded', preparePage)
+			var currentSkill = null
+			var currentCharacteristic = null
 
-			function preparePage() {
+			Object.defineProperty(String.prototype, 'capitalize', {
+				value: function() {
+					return this.charAt(0).toUpperCase() + this.slice(1);
+				},
+				enumerable: false
+			});
 
+			document.addEventListener('DOMContentLoaded', renderPage)
+
+			function renderPage() {
+				fillCharacteristics()
+				fillDifficultyPopup()
+				fillSkills()
 			}
 
-			function shutdownServer() {
-				var xhr = new XMLHttpRequest();
+			function fillCharacteristics() {
+				const char_header = document.getElementById("characteristics-header")
+				const char_values = document.getElementById("characteristics-values")
+				const char_roles = document.getElementById("characteristics-rolls")
+
+				removeAllChildNodes(char_header)
+				removeAllChildNodes(char_values)
+				removeAllChildNodes(char_roles)
+
+				for (const [characteristic, info] of Object.entries(playerData["characteristics"])) {
+					char_header.innerHTML += `<th>${characteristic.capitalize()}</th>`
+
+					const td_elem = document.createElement('td')
+					td_elem.setAttribute("id", characteristic)
+
+					const label_elem = document.createElement('label')
+					label_elem.setAttribute('for', characteristic)
+					label_elem.innerHTML = `${characteristic.capitalize()} Level:`
+
+					const input_elem = document.createElement('input')
+					input_elem.type = 'number'
+					input_elem.name = `${characteristic}`
+					input_elem.min = 0
+					input_elem.setAttribute('value', info["rank"])
+					input_elem.addEventListener("change", (event) => {
+						playerData["characteristics"][characteristic]["rank"] = parseInt(event.target.value)
+						calculateXP()
+					})
+
+					td_elem.appendChild(label_elem)
+					td_elem.appendChild(input_elem)
+
+					char_values.appendChild(td_elem)
+
+					const td_elem_2 = document.createElement('td')
+					const button_elem = document.createElement('button')
+					button_elem.innerHTML = "Roll"
+					button_elem.addEventListener('click', function () {
+						currentCharacteristic = characteristic
+						const diff_elem = document.getElementById("difficulty-popup")
+						diff_elem.style.display = "block"
+					})
+
+					td_elem_2.appendChild(button_elem)
+
+					char_roles.appendChild(td_elem_2)
+				}
+			}
+
+			function fillDifficultyPopup() {
+				const diff_elem = document.getElementById("difficulty-popup")
+				removeAllChildNodes(diff_elem)
+
+				for (let cla of ['blue', 'purple', 'black', 'red']) {
+					const die_elem = document.createElement("div")
+					die_elem.class = "wid100"
+
+					const die_name_elem = document.createElement("span")
+					die_name_elem.innerHTML = cla.capitalize()
+
+					die_elem.appendChild(die_name_elem)
+					die_elem.appendChild(makeLevelSelector(cla))
+
+					diff_elem.appendChild(die_elem)
+				}
+
+				const button_elem = document.createElement('button')
+				button_elem.innerHTML = "Roll"
+				button_elem.addEventListener('click', function () {
+					
+					let dieVals;
+					if (currentSkill != null){
+						dieVals = getDieValuesForSkill(currentSkill)
+					}
+					else if(currentCharacteristic != null) {
+						dieVals = getDieValuesForCharacteristic(currentCharacteristic)
+					}
+
+					sendRoll(dieVals, () => {
+						currentSkill = null
+						currentCharacteristic = null
+						const diff_elem = document.getElementById("difficulty-popup")
+						diff_elem.style.display = "none"
+						clearDifficultyLevels()
+					})
+				})
+
+				diff_elem.appendChild(button_elem)
+
+				const sending_text_elem = document.createElement("div")
+				sending_text_elem.id = "sending"
+				sending_text_elem.style="visibility:hidden;"
+				sending_text_elem.innerHTML = "SENDING..."
+
+				diff_elem.appendChild(sending_text_elem)
+			}
+
+			function fillSkills() {
+				const skill_table = document.getElementById("skills")
+				removeAllChildNodes(skill_table)
+
+				skill_table.innerHTML = `
+					<tr>
+						<th>Skill</th>
+						<th>Characteristic</th>
+						<th>Career?</th>
+						<th>Rank</th>
+						<th></th>
+					</tr>
+				`
+				for (const [skill, info] of Object.entries(playerData["skills"])) {
+					const characteristic_nickname = playerData["characteristics"][info["characteristic"]]["nickname"]
+
+					let skill_row_elem = document.createElement('tr')
+
+					let skill_name_elem = document.createElement('td')
+					skill_name_elem.innerHTML = skill
+
+					let characteristic_nickname_elem = document.createElement('td')
+					characteristic_nickname_elem.innerHTML = characteristic_nickname
+
+					let career_elem = document.createElement('td')
+					career_elem.innerHTML = info["career"]
+
+					let rank_elem = document.createElement('td')
+					rank_elem.appendChild(makeLevelSelector(skill, (name, rank) => {
+						playerData["skills"][name]["rank"] = rank
+					}))
+
+					let button_elem = document.createElement('td')
+					const button = document.createElement('button')
+					button.innerHTML = "Roll"
+					button.addEventListener("click", () => {
+						currentSkill = skill
+						const diff_elem = document.getElementById("difficulty-popup")
+						diff_elem.style.display = "block"
+					})
+					button_elem.appendChild(button)
+
+					skill_row_elem.appendChild(skill_name_elem)
+					skill_row_elem.appendChild(characteristic_nickname_elem)
+					skill_row_elem.appendChild(career_elem)
+					skill_row_elem.appendChild(rank_elem)
+					skill_row_elem.appendChild(button_elem)
+
+					skill_table.appendChild(skill_row_elem)
+				}
+			}
+
+			function removeAllChildNodes(parent) {
+					while (parent.firstChild) {
+							parent.removeChild(parent.firstChild);
+					}
+			}
+
+			function getDieValuesForSkill(skill) {
+				const skillRank = playerData["skills"][skill]["rank"]
+				const skillCharacteristic = playerData["skills"][skill]["characteristic"]
+				const characteristicRank = playerData["characteristics"][skillCharacteristic]["rank"]
+
+				const greens = Math.max(skillRank, characteristicRank) - Math.min(skillRank, characteristicRank)
+				const yellows = Math.min(skillRank, characteristicRank)
+				const blues = getLevelValue("blue")
+				const purples = getLevelValue("purple")
+				const blacks = getLevelValue("black")
+				const reds = getLevelValue("red")
+
+				return {
+					"greens": greens,
+					"yellows": yellows,
+					"blues": parseInt(blues),
+					"purples": parseInt(purples),
+					"blacks": parseInt(blacks),
+					"reds": parseInt(reds),
+				}
+			}
+
+			function getDieValuesForCharacteristic(characteristic) {
+				const characteristicRank = playerData["characteristics"][characteristic]["rank"]
+
+				const greens = characteristicRank
+				const yellows = 0
+				const blues = getLevelValue("blue")
+				const purples = getLevelValue("purple")
+				const blacks = getLevelValue("black")
+				const reds = getLevelValue("red")
+
+				return {
+					"greens": greens,
+					"yellows": yellows,
+					"blues": parseInt(blues),
+					"purples": parseInt(purples),
+					"blacks": parseInt(blacks),
+					"reds": parseInt(reds),
+				}
+			}
+
+			function getLevelValue(name) {
+				var rank_els = document.getElementsByName(name);
+
+				for(i = 0; i < rank_els.length; i++) {
+					if(rank_els[i].hasAttribute("checked")){
+						return rank_els[i].getAttribute("value")
+					}
+				}
+
+				return null
+			}
+
+			function makeLevelSelector(name, callback = (name, rating) => {}) {
+				let div_elem = document.createElement('div')
+				div_elem.setAttribute('class', 'rater')
+
+				let clear_elem = document.createElement('span')
+				clear_elem.setAttribute('value', 0)
+				clear_elem.setAttribute('class', "level_selector")
+				clear_elem.setAttribute('name', name)
+				clear_elem.innerHTML = `<i class="fas fa-ban"></i>`
+				clear_elem.setAttribute('checked', '')
+				clear_elem.addEventListener('click', function () {
+					var rating = parseInt(this.getAttribute("value"));
+					callback(name, rating)
+					return setLevel(rating, div_elem);
+				})
+				
+				div_elem.appendChild(clear_elem)
+
+				for (let i = 1; i <= 5; i++) {
+					let level_selctor_button_elem = document.createElement('span')
+					level_selctor_button_elem.setAttribute('value', i)
+					level_selctor_button_elem.setAttribute('class', "level_selector")
+					level_selctor_button_elem.setAttribute('name', name)
+					level_selctor_button_elem.innerHTML = `<i class="far fa-square"></i>`
+					level_selctor_button_elem.addEventListener('click', function () {
+						var rating = parseInt(this.getAttribute("value"));
+						callback(name, rating)
+						return setLevel(rating, div_elem);
+					})
+
+					div_elem.appendChild(level_selctor_button_elem)
+				}
+				return div_elem
+			}
+
+			function clearDifficultyLevels() {
+				let holder = document.getElementById("difficulty-popup")
+				let selectors = holder.getElementsByClassName("rater")
+				for (selector of selectors) {
+					setLevel(0, selector)
+				}
+			}
+
+			function setLevel(currentLevel, levels_cont) {
+				levels = levels_cont.getElementsByClassName("level_selector")
+				levels[0].removeAttribute("checked")
+				for (let i = 1; i < levels.length; i++) {
+					levels[i].removeAttribute("checked")
+					if (i <= currentLevel) {
+						levels[i].innerHTML = '<i class="fa fa-square"></i>';
+					} else {
+						levels[i].innerHTML = '<i class="far fa-square"></i>';
+					}
+				}
+				levels[currentLevel].setAttribute("checked", '')
+			};
+
+			function sendRequest(text, callback = ()=>{}) {
+				let xhr = new XMLHttpRequest();
 				xhr.open("POST", window.location.href, true);
 				xhr.setRequestHeader('Content-Type', 'application/text');
-				xhr.send("shutdown");	
+				xhr.send(text);	
+				xhr.onload = callback
+				
+			}
+
+			function sendRoll(rollData, callback = ()=>{}) {
+				const rollJsonString = JSON.stringify(rollData);
+				sendRequest("roll" + postSeperator + rollJsonString, callback);	
+			}
+
+			function sendSave() {
+				const saveJsonString = JSON.stringify(playerData);
+				console.log("Saving...")
+				sendRequest("save" + postSeperator + saveJsonString, () => {
+					console.log("Saved.")
+				});	
+			}
+
+			function sendDestiny() {
+				console.log("Rolling Destiny...")
+				sendRequest("destiny", () => {
+					console.log("Rolled.")
+				});	
+			}
+
+			function sendShutdownServer() {
+				sendRequest("shutdown");	
 			}
 		</script>
 	</body>

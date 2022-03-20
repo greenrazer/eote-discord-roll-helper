@@ -78,8 +78,11 @@ def create_roll_command(data):
 
 	if data["reds"] > 0:
 		command.append(f"{data['reds']}r")
-
-	return "!r " + " ".join(command)
+	
+	if len(command) > 0:
+		return "!r " + " ".join(command)
+	else:
+		return None
 
 def save_json_to_file(data):
 	with open("saved.json", "w") as f:
@@ -87,9 +90,8 @@ def save_json_to_file(data):
 
 class HttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 	def __init__(self, discord_client, discord_channel_id, *args, **kwargs):
-		asyncio.get_event_loop().run_until_complete(discord_client.wait_until_ready())
 		self.discord_client = discord_client
-		self.channel = discord_client.get_channel(discord_channel_id)
+		self.discord_channel = discord_client.get_channel(discord_channel_id)
 		super().__init__(*args, **kwargs)
 	
 	def do_GET(self):
@@ -106,21 +108,24 @@ class HttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 		if post_data == "shutdown":
 			print("Shutting Down")
 			quit()
+		elif post_data == "destiny":
+			self.send_message("!destiny roll")
 		else:
 			command, data = post_data.split(POST_SEPERATOR)
 			json_post_data = json.loads(data)
 			if command == "roll":
 				roll_command = create_roll_command(json_post_data)
-				self.send_message(roll_command)
+				if roll_command is not None:
+					self.send_message(roll_command)
 			if command == "save":
 				save_json_to_file(json_post_data)
 
-			self.send_response(200)
-			self.send_header('Content-Type', 'application/json')
-			self.end_headers()
+		self.send_response(200)
+		self.send_header('Content-Type', 'application/json')
+		self.end_headers()
 
-	def send_message(message):
-		self.client.loop.run_until_complete(self.channel.send(command))
+	def send_message(self, message):
+		self.discord_client.loop.run_until_complete(self.discord_channel.send(message))
 
 async def serve(discord_client, discord_channel_id, possible_ports):
 	handler = partial(HttpRequestHandler, discord_client, discord_channel_id)
@@ -130,6 +135,7 @@ async def serve(discord_client, discord_channel_id, possible_ports):
 			with socketserver.TCPServer(("", p), handler) as my_server:
 				found_port = True
 				print(f"starting server on {my_server.server_address[0]}:{my_server.server_address[1]}")
+				await discord_client.wait_until_ready()
 				await my_server.serve_forever()
 				my_server.server_close()
 				break
@@ -141,17 +147,22 @@ async def serve(discord_client, discord_channel_id, possible_ports):
 		print("could not find open port in range")
 		quit()
 
+class DiscordClient(discord.Client):
+		async def on_ready(self):
+			print('Logged on as', self.user)
+
 def main():
 	with open("config.json", "r") as f:
 		config = json.load(f)
 
 	if all(config[x] is not None for x in [DISCORD_CLIENT_TOKEN_KEY, DISCORD_CHANNEL_ID_KEY]):
-		client = discord.Client()
+		client = DiscordClient()
 		client.loop.create_task(serve(client, config[DISCORD_CHANNEL_ID_KEY], config[POSSIBLE_PORTS_KEY]))
 		client.run(config[DISCORD_CLIENT_TOKEN_KEY], bot=False)
 	else:
 		print(f"Could not find {DISCORD_CLIENT_TOKEN_KEY} or {DISCORD_CHANNEL_ID_KEY} in config.json.")
 		print("Shutting Down.")
+		quit()
 
 if __name__ == "__main__":
 	main()
