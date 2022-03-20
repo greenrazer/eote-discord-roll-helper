@@ -5,12 +5,12 @@ import os
 block_cipher = None
 spec_root = os.path.abspath(SPECPATH)
 
+exe_name = 'EOTE-HELPER'
 
 a = Analysis(['main.py'],
              pathex=[spec_root],
              binaries=[],
              datas=[
-              ('requirements.txt','.'), 
               ('config_template.json','.'),
               ('default.json','.'),
               ('templates/*','templates'),
@@ -31,7 +31,7 @@ exe = EXE(pyz,
           a.scripts, 
           [],
           exclude_binaries=True,
-          name='main',
+          name=exe_name,
           debug=False,
           bootloader_ignore_signals=False,
           strip=False,
@@ -48,9 +48,9 @@ coll = COLLECT(exe,
                strip=False,
                upx=True,
                upx_exclude=[],
-               name='main')
+               name=exe_name)
 
 
 # hacky code
-os.mkdir('dist/main/saved')
-os.rename('dist/main/config_template.json', 'dist/main/config.json')
+os.mkdir(f'dist/{exe_name}/saved')
+os.rename(f'dist/{exe_name}/config_template.json', f'dist/{exe_name}/config.json')
