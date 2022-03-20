@@ -10,52 +10,76 @@
 		</style>
   </head>
   <body>
-		<table>
-			<tr>
-				<th>Total XP</th>
-				<th>Used XP</th>
-				<th>Unused XP</th>
-			</tr>
-			<tr>
-				<td>
-					<label for="total-xp">Total XP:</label>
-					<input type="number" id="total-xp" name="total-xp" min="0">
-				</td>
-				<td id="used-xp"></td>
-				<td id="unused-xp"></td>
-			</tr>
-		</table>
-		<table>
-			<tr id="characteristics-header">
-			</tr>
-			<tr id="characteristics-values">
-			</tr>
-			<tr id="characteristics-rolls">
-			</tr>
-		</table>
-		<table id="skills">
-		</table>
-		<div id="difficulty-popup" style="display:none;background-color:gray;">
+		<div>
+			<button onclick="createNewCharacter()">
+				<span>Create New Character</span>
+			</button>
+			<div id="character-selector">
+				<label for="character">Choose a character:</label>
+				<select name="character" id="character"></select>
+			</div>
+		</div>
+
+		<div id="character-window">
+			<div>
+				<label for="name">Character Name:</label>
+  			<input type="text" id="name" name="name">
+			</div>
+			<table>
+				<tr>
+					<th>Total XP</th>
+					<th>Used XP</th>
+					<th>Unused XP</th>
+				</tr>
+				<tr>
+					<td>
+						<label for="total-xp">Total XP:</label>
+						<input type="number" id="total-xp" name="total-xp" min="0">
+					</td>
+					<td id="used-xp"></td>
+					<td id="unused-xp"></td>
+				</tr>
+			</table>
+			<table>
+				<tr id="characteristics-header">
+				</tr>
+				<tr id="characteristics-values">
+				</tr>
+				<tr id="characteristics-rolls">
+				</tr>
+			</table>
+			<table id="skills">
+			</table>
+			<div id="difficulty-popup" style="display:none;background-color:gray;">
+			</div>
+
+			<button onclick="sendSave()">
+				<span>Save</span>
+			</button>
+
+			<button onclick="sendDestiny()">
+				<span>Destiny</span>
+			</button>
 		</div>
 
 		<button onclick="sendShutdownServer()">
 			<span>Shutdown</span>
 		</button>
 
-		<button onclick="sendSave()">
-			<span>Save</span>
-		</button>
-
-		<button onclick="sendDestiny()">
-			<span>Destiny</span>
-		</button>
-
 		<script>
 			var postSeperator = "{%post_seperator%}"
 			var playerData = {%player_data%}
+			var defaultPlayerData = {%default_player_data%}
 
+			var currentCharacter = 0
 			var currentSkill = null
 			var currentCharacteristic = null
+
+			function createNewCharacter() {
+				playerData.push(deepCopy(defaultPlayerData))
+				currentCharacter = playerData.length - 1
+				renderPage()
+			}
 
 			Object.defineProperty(String.prototype, 'capitalize', {
 				value: function() {
@@ -67,10 +91,65 @@
 			document.addEventListener('DOMContentLoaded', renderPage)
 
 			function renderPage() {
+				if(fillCharacters()) {
+					renderCharacter()
+				}
+			}
+
+			function deepCopy(obj){
+				return JSON.parse(JSON.stringify(obj))
+			}
+
+			function renderCharacter() {
+				fillName()
 				fillCharacteristics()
 				fillDifficultyPopup()
 				fillSkills()
 				fillXP()
+			}
+
+			function fillName() {
+				let nameBox = document.getElementById("name")
+				removeAllListeners(nameBox)
+				nameBox = document.getElementById("name")
+				nameBox.value =	playerData[currentCharacter]["base"]["name"]
+				nameBox.addEventListener("change", (event) => {
+					playerData[currentCharacter]["base"]["name"] = event.target.value
+					renderPage()
+				})
+			}
+
+			// return false if there are no characters
+			function fillCharacters() {
+				if (playerData.length == 0){
+					document.getElementById("character-selector").style = "display:none;"
+					document.getElementById("character-window").style = "display:none;"
+					return false
+				}
+
+				let characterSelector = document.getElementById("character")
+				removeAllChildNodes(characterSelector)
+				removeAllListeners(characterSelector)
+				characterSelector = document.getElementById("character")
+
+				for (let player of playerData) {
+					let option = document.createElement('option')
+					option.setAttribute("value", player["base"]["name"])
+					option.innerHTML = player["base"]["name"]
+					characterSelector.appendChild(option)
+				}
+
+				characterSelector.selectedIndex = currentCharacter;
+
+				characterSelector.addEventListener("change", (event) => {
+					currentCharacter = event.target.selectedIndex
+					renderCharacter()
+				})
+
+				document.getElementById("character-selector").style = "display:block;"
+				document.getElementById("character-window").style = "display:block;"
+				
+				return true
 			}
 
 			function fillCharacteristics() {
@@ -82,7 +161,7 @@
 				removeAllChildNodes(char_values)
 				removeAllChildNodes(char_roles)
 
-				for (const [characteristic, info] of Object.entries(playerData["characteristics"])) {
+				for (const [characteristic, info] of Object.entries(playerData[currentCharacter]["characteristics"])) {
 					char_header.innerHTML += `<th>${characteristic.capitalize()}</th>`
 
 					const td_elem = document.createElement('td')
@@ -98,7 +177,7 @@
 					input_elem.min = 0
 					input_elem.setAttribute('value', info["rank"])
 					input_elem.addEventListener("change", (event) => {
-						playerData["characteristics"][characteristic]["rank"] = parseInt(event.target.value)
+						playerData[currentCharacter]["characteristics"][characteristic]["rank"] = parseInt(event.target.value)
 						calculateXP()
 					})
 
@@ -164,7 +243,7 @@
 
 				const sending_text_elem = document.createElement("div")
 				sending_text_elem.id = "sending"
-				sending_text_elem.style="visibility:hidden;"
+				sending_text_elem.style="display:none;"
 				sending_text_elem.innerHTML = "SENDING..."
 
 				diff_elem.appendChild(sending_text_elem)
@@ -183,8 +262,8 @@
 						<th></th>
 					</tr>
 				`
-				for (const [skill, info] of Object.entries(playerData["skills"])) {
-					const characteristic_nickname = playerData["characteristics"][info["characteristic"]]["nickname"]
+				for (const [skill, info] of Object.entries(playerData[currentCharacter]["skills"])) {
+					const characteristic_nickname = playerData[currentCharacter]["characteristics"][info["characteristic"]]["nickname"]
 
 					let skill_row_elem = document.createElement('tr')
 
@@ -200,17 +279,17 @@
 					career_check.name = `${skill}-career`
 					career_check.checked = info["career"]
 					career_check.addEventListener("change", (event) => {
-						playerData["skills"][skill]["career"] = event.target.checked
+						playerData[currentCharacter]["skills"][skill]["career"] = event.target.checked
 						calculateXP()
 					})
 					career_elem.appendChild(career_check)
 
 					let rank_elem = document.createElement('td')
 					let lvl_selector = makeLevelSelector(skill, (name, rank) => {
-						playerData["skills"][name]["rank"] = rank
+						playerData[currentCharacter]["skills"][name]["rank"] = rank
 						calculateXP()
 					})
-					setLevel(playerData["skills"][skill]["rank"], lvl_selector)
+					setLevel(playerData[currentCharacter]["skills"][skill]["rank"], lvl_selector)
 					rank_elem.appendChild(lvl_selector)
 
 					let button_elem = document.createElement('td')
@@ -232,22 +311,22 @@
 					skill_table.appendChild(skill_row_elem)
 				}
 			}
-
+			
 			function fillXP() {
 				let totalXPHolder = document.getElementById("total-xp")
 				calculateXP()
 				totalXPHolder.addEventListener("change", (event) => {
-					playerData["base"]["totalXP"] = parseInt(event.target.value)
+					playerData[currentCharacter]["base"]["totalXP"] = parseInt(event.target.value)
 					calculateXP()
 				})
 			}
 
 			function calculateXP() {
-				let xp = playerData["base"]["totalXP"]
+				let xp = playerData[currentCharacter]["base"]["totalXP"]
 
 				let xpUsed = 0
 
-				for (const [skill, info] of Object.entries(playerData["skills"])) {
+				for (const [skill, info] of Object.entries(playerData[currentCharacter]["skills"])) {
 					if (info["rank"] > 0) {
 						const initialValue = info["career"] ? 0 : 5*info["rank"]
 						xpUsed += range(info["rank"], 1).reduce((partialSum, a) => {
@@ -278,10 +357,15 @@
 					}
 			}
 
+			function removeAllListeners(element){
+				var newElement = element.cloneNode(true);
+				element.parentNode.replaceChild(newElement, element);
+			}
+
 			function getDieValuesForSkill(skill) {
-				const skillRank = playerData["skills"][skill]["rank"]
-				const skillCharacteristic = playerData["skills"][skill]["characteristic"]
-				const characteristicRank = playerData["characteristics"][skillCharacteristic]["rank"]
+				const skillRank = playerData[currentCharacter]["skills"][skill]["rank"]
+				const skillCharacteristic = playerData[currentCharacter]["skills"][skill]["characteristic"]
+				const characteristicRank = playerData[currentCharacter]["characteristics"][skillCharacteristic]["rank"]
 
 				const greens = Math.max(skillRank, characteristicRank) - Math.min(skillRank, characteristicRank)
 				const yellows = Math.min(skillRank, characteristicRank)
@@ -301,7 +385,7 @@
 			}
 
 			function getDieValuesForCharacteristic(characteristic) {
-				const characteristicRank = playerData["characteristics"][characteristic]["rank"]
+				const characteristicRank = playerData[currentCharacter]["characteristics"][characteristic]["rank"]
 
 				const greens = characteristicRank
 				const yellows = 0
@@ -387,7 +471,7 @@
 					}
 				}
 				levels[currentLevel].setAttribute("checked", '')
-			};
+			}
 
 			function sendRequest(text, callback = ()=>{}) {
 				let xhr = new XMLHttpRequest();
@@ -404,7 +488,7 @@
 			}
 
 			function sendSave() {
-				const saveJsonString = JSON.stringify(playerData);
+				const saveJsonString = JSON.stringify(playerData[currentCharacter]);
 				console.log("Saving...")
 				sendRequest("save" + postSeperator + saveJsonString, () => {
 					console.log("Saved.")

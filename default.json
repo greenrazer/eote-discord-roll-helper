@@ -1,20 +1,21 @@
 {
 	"base": {
 		"lastXP": "2012-04-23T18:25:43.511Z",
-		"totalXP": 0
+		"totalXP": 0,
+		"name": "DEFAULT NAME"
 	},
 	"characteristics": {
 		"brawn": {
 			"nickname": "Br",
-			"rank": 1
+			"rank": 0
 		},
 		"agility": {
 			"nickname": "Ag",
-			"rank": 2
+			"rank": 0
 		},
 		"intellect": {
 			"nickname": "Int",
-			"rank": 3
+			"rank": 0
 		},
 		"cunning": {
 			"nickname": "Cun",
@@ -31,18 +32,18 @@
 	},
 	"skills": {
 		"astrogation": {
-			"career": true,
-			"rank": 1,
+			"career": false,
+			"rank": 0,
 			"characteristic": "intellect"
 		},
 		"athletics": {
 			"career": false,
-			"rank": 2,
+			"rank": 0,
 			"characteristic": "brawn"
 		},
 		"charm": {
-			"career": true,
-			"rank": 3,
+			"career": false,
+			"rank": 0,
 			"characteristic": "presence"
 		},
 		"coercion": {

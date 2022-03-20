@@ -7,6 +7,7 @@ from functools import partial
 import http
 import http.server
 import socketserver
+import os
 
 import discord
 
@@ -40,6 +41,18 @@ def fill_template(templ_string, fill_dict):
 
 	return temp_main_template
 
+def filenames_in_directory(direc):
+	for (_, _, filenames) in os.walk(direc):
+			return filenames
+
+def build_player_data_json():
+	out_arr = []
+	for file in filenames_in_directory("saved"):
+		if (file != '.gitignore'):
+			with open(f"saved/{file}", "r") as f:
+				out_arr.append(json.load(f))
+	return json.dumps(out_arr)
+
 def get_html():
 	with open("templates/main.tmpl", "r") as f:
 		main_template = f.read()
@@ -47,12 +60,15 @@ def get_html():
 	with open("templates/style.css", "r") as f:
 		style = f.read()
 
-	with open("saved.json", "r") as f:
-		saved_info = json.load(f)
+	with open("default.json", "r") as f:
+		default_info = json.load(f)
+
+	player_data = build_player_data_json()
 
 	fill_dict = {
 		"style_info":style,
-		"player_data":json.dumps(saved_info),
+		"default_player_data":json.dumps(default_info),
+		"player_data":player_data,
 		"post_seperator":POST_SEPERATOR
 	}
 
@@ -85,8 +101,11 @@ def create_roll_command(data):
 		return None
 
 def save_json_to_file(data):
-	with open("saved.json", "w") as f:
+	with open(f"saved/{data['base']['name']}.json", "w") as f:
 		json.dump(data, f)
+
+def delete_json_file(data):
+	os.remove(f"saved/{data['base']['name']}.json")
 
 class HttpRequestHandler(http.server.SimpleHTTPRequestHandler):
 	def __init__(self, discord_client, discord_channel_id, *args, **kwargs):
