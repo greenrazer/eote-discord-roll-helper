@@ -29,7 +29,7 @@ def quit(message=None):
 	if message is None:
 		sys.exit()
 	else:
-  	sys.exit(message)
+		sys.exit(message)
 
 def fill_template(templ_string, fill_dict):
 	temp_main_template = templ_string.replace("{%", TEMP_VARIABLE_L_SP_PAREN)
