@@ -1,5 +1,5 @@
 # FFGNDS-Discord-Dice-Roller Helper UI
-A very simple UI for [FFGNDS-Discord-Dice-Roller](https://github.com/SkyJedi/FFGNDS-Discord-Dice-Roller).
+A very simple UI for [FFGNDS-Discord-Dice-Roller](https://github.com/SkyJedi/FFGNDS-Discord-Dice-Roller). Instead of having to look at your sheet and type in the roll command, you can just click a button!
 
 ## Features
 - Keeps track of XP, characteristics and skills
