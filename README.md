@@ -17,7 +17,7 @@ A very simple UI for [FFGNDS-Discord-Dice-Roller](https://github.com/SkyJedi/FFG
 	1. Open and login to discordapp.com in your web browser
 		1. Ctrl+shift+I 
 
-		![Developer Tools](/images/developer_tools.png)
+		Developer Tools
 
 		2. Go to Application Tab
 
